@@ -12,6 +12,22 @@ type AssessmentAnswer =
     { questionCode: QuestionCode
       answerScore: float }
 
+type InterviewMetadata =
+    { organisation: string
+      scope: string
+      date: DateOnly }
+
+type Assessment =
+    { version: string
+      organisation: string
+      scope: string
+      date: DateOnly
+      answers: seq<AssessmentAnswer> }
+
+type SammFormat =
+    { formatVersion: string
+      assessment: Assessment }
+
 let serializeQuestionCode (code: QuestionCode) =
     $"%s{code.businessFunction}-%s{code.practice}-%s{code.stream}-%s{code.level |> string}"
 

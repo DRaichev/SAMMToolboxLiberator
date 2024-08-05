@@ -22,7 +22,7 @@ let saveDataToJson (data: seq<AssessmentAnswer>) (outputPath: string) =
     let json = JsonConvert.SerializeObject(data, Formatting.Indented)
     File.WriteAllText(outputPath, json)
 
-let printToFile (outputPath: string) (data: seq<'T>) =
+let printToFile (outputPath: string) (data: SammFormat) =
     printfn $"Writing data to %s{outputPath}"
     use writer = new StreamWriter(outputPath)
     let settings = JsonSerializerSettings()

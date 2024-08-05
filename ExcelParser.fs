@@ -23,7 +23,7 @@ let extractScoreData (row: DataRow) : AssessmentAnswer option =
 
     if Regex.IsMatch(key, pattern) then
         let valueString = row.[6].ToString()
-        
+
         let questionCode = parseExcelQuestionCode key
 
         match System.Double.TryParse(valueString) with
@@ -48,7 +48,20 @@ let getDataTable (filePath: string, sheetName: string) : DataTable =
     let dataSet = reader.AsDataSet(conf)
     dataSet.Tables.[sheetName]
 
-let readExcelFile (filePath: string) =
+let extractInterviewAnswers (filePath: string) =
     let table = getDataTable (filePath, "Interview")
 
     table.Rows |> Seq.cast<DataRow> |> Seq.choose extractScoreData
+
+let extractInterviewMetadata (filePath: string) : InterviewMetadata =
+    let table = getDataTable (filePath, "Interview")
+    // TODO: See if there is a better way to do this than using hardcoded indices
+    { organisation = table.Rows.[8].[3].ToString()
+      scope = table.Rows.[9].[3].ToString()
+      date = table.Rows.[10].[3].ToString() |> DateTime.Parse |> DateOnly.FromDateTime }
+
+
+let extractSammVersion (filePath: string) : string =
+    let table = getDataTable (filePath, "Attribution and License")
+    // TODO: See if there is a better way to do this than using hardcoded indices
+    table.Rows.[1].[1].ToString()
