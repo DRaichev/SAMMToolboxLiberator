@@ -55,10 +55,16 @@ let extractInterviewAnswers (filePath: string) =
 
 let extractInterviewMetadata (filePath: string) : InterviewMetadata =
     let table = getDataTable (filePath, "Interview")
+    
+    let tryParseDate dateStr =
+        match DateTime.TryParse(dateStr: string) with
+        | true, date -> DateOnly.FromDateTime(date)
+        | false, _ -> DateOnly.FromDateTime(DateTime.Today)
+        
     // TODO: See if there is a better way to do this than using hardcoded indices
     { organisation = table.Rows.[8].[3].ToString()
       scope = table.Rows.[9].[3].ToString()
-      date = table.Rows.[10].[3].ToString() |> DateTime.Parse |> DateOnly.FromDateTime }
+      date = table.Rows.[10].[3].ToString() |> tryParseDate }
 
 
 let extractSammVersion (filePath: string) : string =
