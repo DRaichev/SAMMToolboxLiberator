@@ -40,7 +40,7 @@ jobs:
         with:
           name: ToolboxLiberator-${{ matrix.rid }}
           path: |
-            bin/Release/net8.0/${{ matrix.rid }}/publish/
+            bin/Release/net8.0/${{ matrix.rid }}/publish/ToolboxLiberator
 
   upload-release-assets:
   
