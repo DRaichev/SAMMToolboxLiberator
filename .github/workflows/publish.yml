@@ -7,7 +7,6 @@ on:
 jobs:
 
   build-and-publish:
-  
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -42,3 +41,46 @@ jobs:
           name: ToolboxLiberator-${{ matrix.rid }}
           path: |
             bin/Release/net8.0/${{ matrix.rid }}/publish/
+
+  upload-release-assets:
+  
+    needs: build-and-publish
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ToolboxLiberator-linux-x64
+          path: linux-x64/
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ToolboxLiberator-osx-x64
+          path: osx-x64/
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ToolboxLiberator-win-x64
+          path: win-x64/
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Authenticate GitHub CLI
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Upload Linux artifact to release
+        run: gh release upload ${{ github.event.release.tag_name }} linux-x64/*
+
+      - name: Upload macOS artifact to release
+        run: gh release upload ${{ github.event.release.tag_name }} osx-x64/*
+
+      - name: Upload Windows artifact to release
+        run: gh release upload ${{ github.event.release.tag_name }} win-x64/*
