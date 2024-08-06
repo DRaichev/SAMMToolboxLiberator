@@ -5,7 +5,6 @@ on:
     types: [created]
 
 jobs:
-
   build-and-publish:
     runs-on: ${{ matrix.os }}
     
@@ -35,51 +34,61 @@ jobs:
       - name: Publish single file executable
         run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained true /p:PublishSingleFile=true
 
+      - name: Zip published files
+        if: runner.os == 'Linux'
+        run: zip -j ToolboxLiberator-${{ matrix.rid }}.zip bin/Release/net8.0/${{ matrix.rid }}/publish/ToolboxLiberator
+
+      - name: Zip published files
+        if: runner.os == 'macOS'
+        run: zip -j ToolboxLiberator-${{ matrix.rid }}.zip bin/Release/net8.0/${{ matrix.rid }}/publish/ToolboxLiberator
+
+      - name: Zip published files
+        if: runner.os == 'Windows'
+        run: powershell Compress-Archive -Path bin/Release/net8.0/${{ matrix.rid }}/publish/ToolboxLiberator.exe -DestinationPath ToolboxLiberator-${{ matrix.rid }}.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ToolboxLiberator-${{ matrix.rid }}
-          path: |
-            bin/Release/net8.0/${{ matrix.rid }}/publish/ToolboxLiberator${{ matrix.rid == 'win-x64' && '.exe' || '' }}
+          path: ToolboxLiberator-${{ matrix.rid }}.zip
+
   upload-release-assets:
-  
     needs: build-and-publish
-    
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
           name: ToolboxLiberator-linux-x64
-          path: linux-x64/
-      
-      - name: Download artifacts
+          path: .
+
+      - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: ToolboxLiberator-osx-x64
-          path: osx-x64/
+          path: .
 
-      - name: Download artifacts
+      - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
           name: ToolboxLiberator-win-x64
-          path: win-x64/
+          path: .
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
 
       - name: Authenticate GitHub CLI
-        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: Upload Linux artifact to release
-        run: gh release upload ${{ github.event.release.tag_name }} linux-x64/*
+        run: gh release upload ${{ github.event.release.tag_name }} ToolboxLiberator-linux-x64.zip
 
       - name: Upload macOS artifact to release
-        run: gh release upload ${{ github.event.release.tag_name }} osx-x64/*
+        run: gh release upload ${{ github.event.release.tag_name }} ToolboxLiberator-osx-x64.zip
 
       - name: Upload Windows artifact to release
-        run: gh release upload ${{ github.event.release.tag_name }} win-x64/*
+        run: gh release upload ${{ github.event.release.tag_name }} ToolboxLiberator-win-x64.zip
