@@ -37,8 +37,8 @@ jobs:
         run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained true /p:PublishSingleFile=true
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: my-fsharp-app-${{ matrix.rid }}
+          name: ToolboxLiberator-${{ matrix.rid }}
           path: |
             bin/Release/net8.0/${{ matrix.rid }}/publish/
