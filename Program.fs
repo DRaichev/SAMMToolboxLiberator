@@ -1,10 +1,9 @@
 ﻿module ToolboxLiberator.Program
 
-open System.IO
-open Newtonsoft.Json
 open ToolboxLiberator.JsonOutput
 open ToolboxLiberator.ExcelParser
 open ToolboxLiberator.SammFormat
+open ToolboxLiberator.SchemaValidator
 
 let liberate (inputFile, outputFile) =
     printfn $"Reading data from %s{inputFile}"
@@ -34,7 +33,14 @@ let main argv =
     | [| "liberate"; inputFile; outputFile |] ->
         liberate (inputFile, outputFile)
         0
+    | [| "validate"; jsonFile |] ->
+        validateJsonFromFile jsonFile None
+        0
+    | [| "validate"; jsonFile; schemaFile |] ->
+        validateJsonFromFile jsonFile (Some(schemaFile))
+        0
     | _ ->
         printfn "Usage:"
-        printfn "liberate <inputFile> <outputFile> - Liberate data from Excel and write to JSON"
+        printfn "liberate <input.xlsx> <output> - Read data from Excel and write to .samm format"
+        printfn "validate <input.samm> (<schemaFile>) - Validate file against samm schema (optional custom schema)"
         1
