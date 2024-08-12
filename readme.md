@@ -15,3 +15,12 @@ Example:
 ```bash
 ./ToolboxLiberator liberate SAMM_spreadsheet.xlsx output.samm
 ```
+
+You can also validate the output file against the .samm schema (or a custom schema):
+```
+validate <inputFile> (<schemaFile>)
+```
+example:
+```bash
+./ToolboxLiberator validate output.samm
+```
